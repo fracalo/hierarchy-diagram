@@ -1,5 +1,5 @@
 
-const hierchyDiag = (parsedJson, padLen) => {
+const hierchyDiag = (parsedJson, padLen = 2) => {
   if (typeof parsedJson !== 'object')
     throw new Error('hierchyDiag first parameter must be an object');
   if (isNaN(padLen))
@@ -120,7 +120,7 @@ const hierchyDiag = (parsedJson, padLen) => {
     );
   };
 
-  const createLines = (o, stage, pad = 1, lev = 0, res = [], opt) => {
+  const createLines = (o, stage, pad, lev = 0, res = [], opt) => {
     if (lev === 0 && stage.name === 'interlevel')
       opt = { only: true };
 
