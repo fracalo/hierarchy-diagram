@@ -1,6 +1,11 @@
 
-
 const hierchyDiag = (parsedJson, padLen) => {
+  if (typeof parsedJson !== 'object')
+    throw new Error('hierchyDiag first parameter must be an object');
+  if (isNaN(padLen))
+    throw new Error('hierchyDiag second parameter seems not to be a number');
+  padLen = Math.abs(Math.floor(padLen / 2) * 2);
+
   const levelsNames = (o, levels, i) => {
     i = (i || 0);
     levels = levels || [];
@@ -17,13 +22,14 @@ const hierchyDiag = (parsedJson, padLen) => {
   const getLongestName = (aa) => aa.reduce((a, b) => {
     if (Array.isArray(a))
       return getLongestName(a);
+    if (Array.isArray(b))
+      return getLongestName(b);
     return (a.length >= b.length) ? a : b;
   });
 
-  const levNames = levelsNames(jj, [], 0);
+  const levNames = levelsNames(parsedJson, [], 0);
   const longestName = getLongestName(levNames);
-  let padding;
-  const boxSize = longestName.length + 4 + (padding || 1) * 2; // -|-abc-|-
+  const boxSize = longestName.length + 4 + (padLen || 1) * 2; // -|-abc-|-
 
   const genBranchSize = (b) => (
     (b.children && b.children.length) ?
@@ -104,13 +110,13 @@ const hierchyDiag = (parsedJson, padLen) => {
     const rightPad = n - str.length - leftPad;
 
     return (
-      outLeft.repeat(pad) +
+      outLeft.repeat(pad / 2) +
       bLeft +
       inLeft.repeat(leftPad) +
       str +
       inRight.repeat(rightPad) +
       bRight +
-      outRight.repeat(pad)
+      outRight.repeat(pad / 2)
     );
   };
 
@@ -141,7 +147,7 @@ const hierchyDiag = (parsedJson, padLen) => {
     return res;
   };
 
-  /** reorganixe functions for perfect look */
+  /** reorganize functions for perfect look */
   const mergeLines = (aStr, bStr, searchA, repB) => {
     const a = aStr.split('');
     const b = bStr.split('');
@@ -159,7 +165,6 @@ const hierchyDiag = (parsedJson, padLen) => {
       const outer = aa[i];
       for (let j = 0, len = outer.length; j < len; j++) {
         const inner = outer[j];
-        // console.log(j, inner);
         if (j === 0 && res.length) {
           res[res.length - 1] = mergeLines(res[res.length - 1], inner, '|', '|');
           continue;
@@ -170,11 +175,30 @@ const hierchyDiag = (parsedJson, padLen) => {
     }
     return res;
   };
-  const psd = processStage.map(x => createLines(parsedJson, x));
+  const trimTrailingLeading = (a) => {
+    // remove trainling '|'
+    let res = a.map(x => x.split(''));
+    res = transpose(res);
+    res = res.map(x => {
+      let i = x.length;
+      while (--i) {
+        if (x[i] === '|')
+          x[i] = ' ';
+        else if (x[i] !== ' ')
+          break;
+      }
+      return x;
+    });
+    res = transpose(res).map(x => x.join(''));
+    // remove leading 2 lines
+    return res.slice(2);
+  };
+
+  const psd = processStage.map(x => createLines(parsedJson, x, padLen));
   const transpose = (a) => a[0].map((_, i) => a.map(x => x[i]));
   const trans = transpose(psd);
 
-  return mergeArrayAndConnectors(trans);
+  const merged = mergeArrayAndConnectors(trans);
+  const trimmed = trimTrailingLeading(merged);
+  return trimmed;
 };
-
-return hierchyDiag;
