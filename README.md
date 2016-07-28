@@ -1,4 +1,4 @@
-Hierchy diagram js function
+Hierarchy diagram js function
 ===
 
 JS function for converting a js object that looks like :
@@ -37,7 +37,7 @@ into a command line style diagram encapsulated in an array:
 ### description
 
 
-#### `hierchyDiag(object[, padding])`
+#### `hierarchyDiag(object[, padding])`
 
 
  - Every object must have a `name` proprerty, and only one root object is supported

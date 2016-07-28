@@ -1,5 +1,5 @@
 
-const hierchyDiag = (parsedJson, padLen = 2) => {
+const hierarchyDiag = (parsedJson, padLen = 2) => {
   if (typeof parsedJson !== 'object')
     throw new Error('hierchyDiag first parameter must be an object');
   if (isNaN(padLen))
